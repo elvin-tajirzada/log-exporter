@@ -7,6 +7,7 @@ import (
 	"github.com/elvin-tacirzade/log-exporter/pkg/models"
 	"github.com/hpcloud/tail"
 	"log"
+	"strings"
 )
 
 type Reader struct {
@@ -46,7 +47,9 @@ func (r *Reader) Handle() {
 			continue
 		}
 
-		unMarshalContainerLogErr := json.Unmarshal([]byte(dockerLog.Log), &containerLog)
+		trimDockerLog := strings.Trim(dockerLog.Log, " ")
+
+		unMarshalContainerLogErr := json.Unmarshal([]byte(trimDockerLog), &containerLog)
 		if unMarshalContainerLogErr != nil {
 			log.Printf("failed to unmarshall container log: log: %s, err: %v", dockerLog.Log, unMarshalContainerLogErr)
 			continue
