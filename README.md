@@ -11,6 +11,8 @@ Log Exporter makes it possible to monitor the custom API logs using [Loki](https
 
 This project was inspired by [Promtail](https://grafana.com/docs/loki/latest/clients/promtail/). Your API have to run on [Docker](https://www.docker.com/). The exporter connects to your container, reads the container logs, pushes the logs to the [Loki](https://grafana.com/oss/loki/).
 
+![Project schema](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/schema.png?raw=true)
+
 ## Getting Started
 
 We need some prerequisites to start exporting.
