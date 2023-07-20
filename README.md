@@ -1,4 +1,5 @@
 ![GitHub go.mod Go version (subdirectory of monorepo)](https://img.shields.io/github/go-mod/go-version/elvin-tacirzade/log-exporter?logo=go)
+[![Go Reference](https://pkg.go.dev/badge/github.com/elvin-tacirzade/log-exporter.svg)](https://pkg.go.dev/github.com/elvin-tacirzade/log-exporter)
 ![Docker Pulls](https://img.shields.io/docker/pulls/elvintacirzade/log-exporter?logo=docker&logoColor=white)
 ![Docker Image Size (tag)](https://img.shields.io/docker/image-size/elvintacirzade/log-exporter/latest?logo=docker&logoColor=white)
 
