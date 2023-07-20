@@ -60,7 +60,7 @@ docker run -d \
   -v /var/lib/docker/containers/8528e90660bce465a47d381d4dd8d5d43ef5380d0d35a0ea28d1fb85382561a3:/logs \
   --env CONTAINER_ID=8528e90660bce465a47d381d4dd8d5d43ef5380d0d35a0ea28d1fb85382561a3 \
   --env LOKI_URL=http://loki:3100/loki/api/v1/push \
-  elvintacirzade/log-exporter:v1.0.0
+  elvintacirzade/log-exporter:latest
 ```
 
 **Don't forget to change volume mapping and environment variables.**
@@ -74,7 +74,7 @@ We use [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/)
 You must run [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) on [Docker](https://www.docker.com/).
 
 
-After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19168-api-log-export/) for exporter.
+After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19199-custom-logs/) for exporter.
 
 ![Grafana Dashboard](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard_1.png?raw=true)
 
