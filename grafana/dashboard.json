@@ -58,8 +58,10 @@
       }
     ]
   },
+  "description": "Custom logs monitoring using Loki",
   "editable": true,
   "fiscalYearStartMonth": 0,
+  "gnetId": 19222,
   "graphTooltip": 0,
   "id": null,
   "links": [],
@@ -166,7 +168,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
-          "expr": "avg_over_time({job=\"log-exporter\"} | json timening=\"timing\" | unwrap timening [6h])",
+          "expr": "avg_over_time({job=\"log-exporter\"} | json timening=\"timing\" | unwrap timening [$__range])",
           "legendFormat": "",
           "queryType": "range",
           "refId": "A"
@@ -264,7 +266,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
-          "expr": "topk(3, avg_over_time({job=\"log-exporter\"} | json timening=\"timing\", path=\"path\" | unwrap timening [6h]) by (path))",
+          "expr": "topk(3, avg_over_time({job=\"log-exporter\"} | json timening=\"timing\", path=\"path\" | unwrap timening [$__range]))",
           "legendFormat": "{{path}}",
           "queryType": "range",
           "refId": "A"
@@ -796,7 +798,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
-          "expr": "count_over_time({job=\"log-exporter\"} | json device=\"dt\" [6h])",
+          "expr": "count_over_time({job=\"log-exporter\"} | json device=\"dt\" [$__range])",
           "legendFormat": "{{device}}",
           "queryType": "range",
           "refId": "A",
@@ -913,7 +915,7 @@
             "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
-          "expr": "count_over_time({job=\"log-exporter\"} | json status=\"status\" [6h])",
+          "expr": "count_over_time({job=\"log-exporter\"} | json status=\"status\" [$__range])",
           "legendFormat": "{{status}}",
           "queryType": "range",
           "refId": "A",
@@ -1233,13 +1235,13 @@
     "list": []
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Logs",
+  "title": "Custom logs",
   "uid": "b9367a8f-6f3d-4d63-9748-9aefc2d9d0d4",
-  "version": 33,
+  "version": 16,
   "weekStart": ""
 }
