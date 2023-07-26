@@ -49,7 +49,7 @@ First of all your api log must be like this:
 * `status` - HTTP status code and must be `integer`.
 * `msg` - your log message.
 * `dt` - device type.
-* `timing` - your handle time for each request. It must be `float`.
+* `timing` - your handle time (seconds) for each request. It must be `float`.
 * `ts` - log creation time.
 
 ### Usage Exporter
@@ -60,13 +60,11 @@ We use the following command to run it on [Docker](https://www.docker.com/).
 docker run -d \
   --name log-exporter \
   --network monitoring \
-  -v /var/lib/docker/containers/8528e90660bce465a47d381d4dd8d5d43ef5380d0d35a0ea28d1fb85382561a3:/logs \
-  --env CONTAINER_ID=8528e90660bce465a47d381d4dd8d5d43ef5380d0d35a0ea28d1fb85382561a3 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --env CONTAINER_NAME=your_container_name \
   --env LOKI_URL=http://loki:3100/loki/api/v1/push \
   elvintacirzade/log-exporter:latest
 ```
-
-**Don't forget to change volume mapping and environment variables.**
 
 [See](https://hub.docker.com/r/elvintacirzade/log-exporter) more information.
 
