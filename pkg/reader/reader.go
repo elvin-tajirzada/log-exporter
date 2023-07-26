@@ -1,64 +1,65 @@
 package reader
 
 import (
+	"bufio"
 	"encoding/json"
-	"fmt"
 	"github.com/elvin-tacirzade/log-exporter/pkg/db"
+	"github.com/elvin-tacirzade/log-exporter/pkg/docker"
 	"github.com/elvin-tacirzade/log-exporter/pkg/models"
-	"github.com/hpcloud/tail"
+	"github.com/elvin-tacirzade/log-exporter/pkg/utils"
 	"log"
-	"strings"
 )
 
 type Reader struct {
-	Tail *tail.Tail
-	Loki *db.Loki
+	Loki   *db.Loki
+	Docker *docker.Docker
 }
 
-func New(filePath string, loki *db.Loki) (*Reader, error) {
-	t, err := tail.TailFile(filePath, tail.Config{
-		Follow: true,
-		Location: &tail.SeekInfo{
-			Offset: 0,
-			Whence: 2,
-		},
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to begins tailing the file. file path: %v, err: %v", filePath, err)
-	}
-
+func New(loki *db.Loki, dock *docker.Docker) (*Reader, error) {
 	return &Reader{
-		Tail: t,
-		Loki: loki,
+		Loki:   loki,
+		Docker: dock,
 	}, nil
 }
 
 func (r *Reader) Handle() {
-	var (
-		dockerLog    models.DockerLog
-		containerLog models.ContainerLog
-	)
+	var containerLog models.ContainerLog
 
-	for line := range r.Tail.Lines {
+	logs, logsErr := r.Docker.GetLogs()
+	if logsErr != nil {
+		log.Fatal(logsErr)
+	}
 
-		unMarshalDockerLogErr := json.Unmarshal([]byte(line.Text), &dockerLog)
-		if unMarshalDockerLogErr != nil {
-			log.Printf("failed to unmarshall docker log: log: %s, err: %v", line.Text, unMarshalDockerLogErr)
-			continue
+	defer logs.Close()
+
+	for {
+		reader := bufio.NewReader(logs)
+
+		for {
+			line, lineErr := reader.ReadString('\n')
+			if lineErr != nil {
+				log.Printf("failed to read log: %v\n", lineErr)
+				break
+			}
+
+			jsonLog, jsonLogErr := utils.ExtractJSON(line)
+			if jsonLogErr != nil {
+				log.Println(jsonLogErr)
+				continue
+			}
+
+			unmarshalErr := json.Unmarshal([]byte(jsonLog), &containerLog)
+			if unmarshalErr != nil {
+				log.Printf("failed to unmarshall container log: log: %s, err: %v\n", jsonLog, unmarshalErr)
+				continue
+			}
+
+			lokiPushErr := r.Loki.Push(&containerLog)
+			if lokiPushErr != nil {
+				log.Fatalf("failed to push to loki: %v", lokiPushErr)
+			}
 		}
 
-		trimDockerLog := strings.Trim(dockerLog.Log, " ")
-
-		unMarshalContainerLogErr := json.Unmarshal([]byte(trimDockerLog), &containerLog)
-		if unMarshalContainerLogErr != nil {
-			log.Printf("failed to unmarshall container log: log: %s, err: %v", dockerLog.Log, unMarshalContainerLogErr)
-			continue
-		}
-
-		lokiPushErr := r.Loki.Push(&containerLog)
-		if lokiPushErr != nil {
-			log.Fatalf("failed to push to loki: %v", lokiPushErr)
-		}
-
+		logs = r.Docker.ReConnect()
 	}
 }

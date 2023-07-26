@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"github.com/elvin-tacirzade/log-exporter/pkg/config"
 	"github.com/elvin-tacirzade/log-exporter/pkg/db"
+	"github.com/elvin-tacirzade/log-exporter/pkg/docker"
 	"github.com/elvin-tacirzade/log-exporter/pkg/reader"
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 )
 
@@ -22,7 +22,7 @@ type (
 		Config *config.Config
 		Loki   *db.Loki
 		Reader *reader.Reader
-		Wg     sync.WaitGroup
+		Docker *docker.Docker
 	}
 )
 
@@ -36,8 +36,14 @@ func New() (App, error) {
 	// create loki
 	loki := db.NewLoki(conf)
 
+	// create docker
+	dock, dockErr := docker.New(conf)
+	if dockErr != nil {
+		return nil, fmt.Errorf("failed to create a new docker: %v", dockErr)
+	}
+
 	// create reader
-	r, rErr := reader.New(conf.Docker.ContainerLogFilePath, loki)
+	r, rErr := reader.New(loki, dock)
 	if rErr != nil {
 		return nil, fmt.Errorf("failed to create a new reader: %v", rErr)
 	}
@@ -46,19 +52,15 @@ func New() (App, error) {
 		Config: conf,
 		Loki:   loki,
 		Reader: r,
+		Docker: dock,
 	}, nil
 }
 
 func (a *app) Start() {
-	a.Wg.Add(1)
-
 	// start reader
-	go a.startReader()
-}
+	go a.Reader.Handle()
 
-func (a *app) startReader() {
-	a.Reader.Handle()
-	a.Wg.Done()
+	log.Println("exporter started successfully")
 }
 
 func (a *app) Shutdown() {
@@ -69,16 +71,15 @@ func (a *app) Shutdown() {
 	go func() {
 		sig := <-signals
 
-		readerStopErr := a.Reader.Tail.Stop()
-		if readerStopErr != nil {
-			log.Printf("failed to stop reader: %v\n", readerStopErr)
+		dockerCliCloseErr := a.Docker.Client.Close()
+		if dockerCliCloseErr != nil {
+			log.Printf("failed to close docker client: %v\n", dockerCliCloseErr)
 		} else {
-			log.Println("log reader: stopped the tailing activity")
+			log.Println("docker client closed successfully")
 		}
 
-		a.Wg.Wait()
-
-		log.Printf("received signal: %v", sig)
+		log.Printf("received signal: %v\n", sig)
+		log.Println("exporter exited. Bye...")
 		done <- struct{}{}
 	}()
 

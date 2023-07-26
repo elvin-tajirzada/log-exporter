@@ -5,12 +5,6 @@ import (
 	"time"
 )
 
-type DockerLog struct {
-	Log    string    `json:"log"`
-	Stream string    `json:"stream"`
-	Time   time.Time `json:"time"`
-}
-
 type ContainerLog struct {
 	IP      net.IP    `json:"ip" db:"ip"`
 	Caller  string    `json:"caller" db:"caller"`

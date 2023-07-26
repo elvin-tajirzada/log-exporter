@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 )
 
 const (
-	logFolderName        = "logs"
-	logFileNameExtension = "json.log"
-	streamKey            = "job"
-	streamValue          = "log-exporter"
+	dockerSocketPath    = "unix:///var/run/docker.sock"
+	dockerCliApiVersion = "1.41"
+	dockerReconnectTime = time.Second * 10
+	lokiStreamKey       = "job"
+	lokiStreamValue     = "log-exporter"
 )
 
 type (
@@ -20,7 +22,8 @@ type (
 	}
 
 	docker struct {
-		ContainerID, ContainerLogFilePath string
+		SocketPath, CliApiVersion, ContainerName string
+		ReconnectTime                            time.Duration
 	}
 
 	loki struct {
@@ -35,14 +38,9 @@ type (
 )
 
 func New() (*Config, error) {
-	containerID := os.Getenv("CONTAINER_ID")
-	if containerID == "" {
-		return nil, fmt.Errorf("environment parameter `CONTAINER_ID` can't be empty")
-	}
-
-	containerLogFilePath := fmt.Sprintf("/%s/%s-%s", logFolderName, containerID, logFileNameExtension)
-	if _, err := os.Stat(containerLogFilePath); err != nil {
-		return nil, fmt.Errorf("log file cannot be found. path: %s", containerLogFilePath)
+	containerName := os.Getenv("CONTAINER_NAME")
+	if containerName == "" {
+		return nil, fmt.Errorf("environment parameter `CONTAINER_NAME` can't be empty")
 	}
 
 	lokiURL := os.Getenv("LOKI_URL")
@@ -53,14 +51,16 @@ func New() (*Config, error) {
 
 	return &Config{
 		Docker: docker{
-			ContainerID:          containerID,
-			ContainerLogFilePath: containerLogFilePath,
+			SocketPath:    dockerSocketPath,
+			CliApiVersion: dockerCliApiVersion,
+			ContainerName: containerName,
+			ReconnectTime: dockerReconnectTime,
 		},
 		Loki: loki{
 			URL: u.String(),
 			Stream: stream{
-				Key:   streamKey,
-				Value: streamValue,
+				Key:   lokiStreamKey,
+				Value: lokiStreamValue,
 			},
 		},
 	}, nil
