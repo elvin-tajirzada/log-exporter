@@ -23,7 +23,9 @@ func New(loki *db.Loki, dock *docker.Docker) (*Reader, error) {
 }
 
 func (r *Reader) Handle() {
-	var containerLog models.ContainerLog
+	containerLog := models.ContainerLog{
+		Container: r.Docker.ContainerName,
+	}
 
 	logs, logsErr := r.Docker.GetLogs()
 	if logsErr != nil {
