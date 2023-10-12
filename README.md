@@ -75,7 +75,7 @@ We use [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/)
 You must run [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) on [Docker](https://www.docker.com/).
 
 
-After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19222-custom-logs/) for exporter.
+After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19745-custom-logs/) for exporter.
 
 ![Grafana Dashboard](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard_1.png?raw=true)
 
