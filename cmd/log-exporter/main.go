@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/elvin-tacirzade/log-exporter/pkg/app"
+	"github.com/elvin-tacirzade/log-exporter/internal/app"
 	"log"
 )
 
@@ -9,7 +9,7 @@ func main() {
 	// create app
 	a, err := app.New()
 	if err != nil {
-		log.Fatalf("failed to create app: %v", err)
+		log.Fatalf("failed to create a new app: %v", err)
 	}
 
 	// start app

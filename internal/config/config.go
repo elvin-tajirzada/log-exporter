@@ -17,32 +17,34 @@ const (
 
 type (
 	Config struct {
-		Docker docker
-		Loki   loki
+		Docker *Docker
+		Loki   *Loki
 	}
 
-	docker struct {
+	Docker struct {
 		SocketPath, CliApiVersion, ContainerName string
 		ReconnectTime                            time.Duration
 	}
 
-	loki struct {
+	Loki struct {
 		URL    string
-		Stream stream
+		Stream *Stream
 	}
 
-	stream struct {
+	Stream struct {
 		Key   string
 		Value string
 	}
 )
 
 func New() (*Config, error) {
+	// get container name
 	containerName := os.Getenv("CONTAINER_NAME")
 	if containerName == "" {
 		return nil, fmt.Errorf("environment parameter `CONTAINER_NAME` can't be empty")
 	}
 
+	// get loki URL
 	lokiURL := os.Getenv("LOKI_URL")
 	u, uErr := url.ParseRequestURI(lokiURL)
 	if uErr != nil {
@@ -50,15 +52,15 @@ func New() (*Config, error) {
 	}
 
 	return &Config{
-		Docker: docker{
+		Docker: &Docker{
 			SocketPath:    dockerSocketPath,
 			CliApiVersion: dockerCliApiVersion,
 			ContainerName: containerName,
 			ReconnectTime: dockerReconnectTime,
 		},
-		Loki: loki{
+		Loki: &Loki{
 			URL: u.String(),
-			Stream: stream{
+			Stream: &Stream{
 				Key:   lokiStreamKey,
 				Value: lokiStreamValue,
 			},
