@@ -1,12 +1,14 @@
-package utils
+package extraction
 
 import (
 	"fmt"
 	"regexp"
 )
 
-func ExtractJSON(value string) (string, error) {
-	re := regexp.MustCompile(`{.*}`)
+const jsonExpression = `{.*}`
+
+func JSON(value string) (string, error) {
+	re := regexp.MustCompile(jsonExpression)
 
 	match := re.FindString(value)
 
