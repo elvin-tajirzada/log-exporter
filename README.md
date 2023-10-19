@@ -77,8 +77,8 @@ You must run [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana
 
 After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19745-custom-logs/) for exporter.
 
-![Grafana Dashboard](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard_1.png?raw=true)
+![Grafana Dashboard Timing](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard-timing.png?raw=true)
 
-![Grafana Dashboard](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard_2.png?raw=true)
+![Grafana Dashboard Number of Processed Requests](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard-number-of-processed-requests.png?raw=true)
 
-![Grafana Dashboard](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard_3.png?raw=true)
+![Grafana Dashboard Info](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/photos/dashboard-info.png?raw=true)

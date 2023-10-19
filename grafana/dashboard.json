@@ -61,7 +61,7 @@
   "description": "Custom logs monitoring using Loki",
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "gnetId": 19222,
+  "gnetId": 19745,
   "graphTooltip": 0,
   "id": null,
   "links": [],
@@ -552,7 +552,7 @@
       },
       "gridPos": {
         "h": 9,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 23
       },
@@ -723,6 +723,75 @@
               "viz": false
             }
           },
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "id": 15,
+      "options": {
+        "displayLabels": [
+          "percent"
+        ],
+        "legend": {
+          "displayMode": "list",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${DS_LOKI}"
+          },
+          "editorMode": "builder",
+          "expr": "count_over_time({job=\"log-exporter\"} | json container=\"container\" [$__range])",
+          "legendFormat": "{{container}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "by Container Name",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${DS_LOKI}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
           "mappings": [],
           "unit": "none"
         },
@@ -760,7 +829,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 0,
         "y": 32
@@ -877,7 +946,7 @@
         ]
       },
       "gridPos": {
-        "h": 8,
+        "h": 9,
         "w": 12,
         "x": 12,
         "y": 32
@@ -931,7 +1000,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 41
       },
       "id": 4,
       "panels": [],
@@ -973,7 +1042,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 41
+        "y": 42
       },
       "id": 2,
       "options": {
@@ -1051,21 +1120,23 @@
               "level": true
             },
             "indexByName": {
-              "caller": 2,
-              "dt": 7,
-              "ip": 1,
-              "job": 10,
+              "caller": 3,
+              "container": 1,
+              "dt": 8,
+              "ip": 2,
+              "job": 11,
               "labels": 0,
-              "level": 11,
-              "method": 4,
-              "msg": 6,
-              "path": 3,
-              "status": 5,
-              "timing": 8,
-              "ts": 9
+              "level": 12,
+              "method": 5,
+              "msg": 7,
+              "path": 4,
+              "status": 6,
+              "timing": 9,
+              "ts": 10
             },
             "renameByName": {
               "caller": "Caller",
+              "container": "Container",
               "dt": "Device",
               "ip": "IP",
               "job": "",
@@ -1117,7 +1188,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 41
+        "y": 42
       },
       "id": 3,
       "options": {
@@ -1235,13 +1306,13 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Custom logs",
   "uid": "b9367a8f-6f3d-4d63-9748-9aefc2d9d0d4",
-  "version": 16,
+  "version": 6,
   "weekStart": ""
 }
