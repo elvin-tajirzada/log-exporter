@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/elvin-tacirzade/log-exporter/internal/config"
+	"github.com/elvin-tajirzada/log-exporter/internal/config"
 	"io"
 	"log"
 	"time"

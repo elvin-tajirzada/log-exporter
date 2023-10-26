@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/elvin-tacirzade/log-exporter/internal/app"
+	"github.com/elvin-tajirzada/log-exporter/internal/app"
 	"log"
 )
 

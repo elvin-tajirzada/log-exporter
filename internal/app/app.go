@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
-	"github.com/elvin-tacirzade/log-exporter/internal/config"
-	"github.com/elvin-tacirzade/log-exporter/internal/service"
-	"github.com/elvin-tacirzade/log-exporter/pkg/containerization"
-	"github.com/elvin-tacirzade/log-exporter/pkg/db"
+	"github.com/elvin-tajirzada/log-exporter/internal/config"
+	"github.com/elvin-tajirzada/log-exporter/internal/service"
+	"github.com/elvin-tajirzada/log-exporter/pkg/containerization"
+	"github.com/elvin-tajirzada/log-exporter/pkg/db"
 	"log"
 	"os"
 	"os/signal"

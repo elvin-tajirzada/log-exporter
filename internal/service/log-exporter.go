@@ -3,10 +3,10 @@ package service
 import (
 	"bufio"
 	"encoding/json"
-	"github.com/elvin-tacirzade/log-exporter/internal/models"
-	"github.com/elvin-tacirzade/log-exporter/pkg/containerization"
-	"github.com/elvin-tacirzade/log-exporter/pkg/db"
-	"github.com/elvin-tacirzade/log-exporter/pkg/extraction"
+	"github.com/elvin-tajirzada/log-exporter/internal/models"
+	"github.com/elvin-tajirzada/log-exporter/pkg/containerization"
+	"github.com/elvin-tajirzada/log-exporter/pkg/db"
+	"github.com/elvin-tajirzada/log-exporter/pkg/extraction"
 	"log"
 )
 

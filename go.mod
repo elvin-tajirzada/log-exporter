@@ -1,4 +1,4 @@
-module github.com/elvin-tacirzade/log-exporter
+module github.com/elvin-tajirzada/log-exporter
 
 go 1.20
 
