@@ -2,75 +2,98 @@ package service
 
 import (
 	"bufio"
+	"context"
 	"encoding/json"
-	"github.com/elvin-tajirzada/log-exporter/internal/models"
-	"github.com/elvin-tajirzada/log-exporter/pkg/containerization"
-	"github.com/elvin-tajirzada/log-exporter/pkg/db"
-	"github.com/elvin-tajirzada/log-exporter/pkg/extraction"
 	"log"
+	"time"
+
+	"github.com/elvin-tajirzada/log-exporter/pkg/containerization"
+	"github.com/elvin-tajirzada/log-exporter/pkg/database"
+	"github.com/elvin-tajirzada/log-exporter/pkg/extraction"
 )
 
 type LogExporter struct {
-	Loki          db.LokiAPI
-	Docker        containerization.DockerAPI
-	ContainerName string
+	Loki             database.Client
+	Docker           containerization.Client
+	ContainerName    string
+	ReconnectionTime time.Duration
 }
 
-func NewLogExporter(loki db.LokiAPI, docker containerization.DockerAPI, containerName string) *LogExporter {
+func NewLogExporter(
+	loki database.Client,
+	docker containerization.Client,
+	containerName string,
+	reconnectTime time.Duration,
+) *LogExporter {
 	return &LogExporter{
-		Loki:          loki,
-		Docker:        docker,
-		ContainerName: containerName,
+		Loki:             loki,
+		Docker:           docker,
+		ContainerName:    containerName,
+		ReconnectionTime: reconnectTime,
 	}
 }
 
-func (l *LogExporter) Start() {
-	containerLog := models.ContainerLog{
-		Container: l.ContainerName,
+func (l *LogExporter) Start(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("Log exporter service shutdown successfully")
+			return
+		default:
+			l.handleLogs(ctx)
+		}
 	}
+}
+
+func (l *LogExporter) handleLogs(ctx context.Context) {
+	var containerLog map[string]interface{}
 
 	// get docker container logs
-	logs, logsErr := l.Docker.GetLogs()
-	if logsErr != nil {
-		log.Fatal(logsErr)
+	logs, err := l.Docker.GetLogs(ctx)
+	if err != nil {
+		log.Printf("Unable to get logs: %v\n", err)
+		// reconnect docker client
+		log.Printf("Trying to reconnect docker container in %s\n", l.ReconnectionTime.String())
+		time.Sleep(l.ReconnectionTime)
+		return
 	}
-
+	log.Println("Successfully connected to Docker container")
 	defer logs.Close()
 
+	// create a new reader for logs
+	reader := bufio.NewReader(logs)
+
 	for {
-		// create a new reader for logs
-		reader := bufio.NewReader(logs)
-
-		for {
-			// get log line
-			line, lineErr := reader.ReadString('\n')
-			if lineErr != nil {
-				log.Printf("failed to read log: %v\n", lineErr)
-				break
-			}
-
-			// extraction json value from log line
-			jsonLog, jsonLogErr := extraction.JSON(line)
-			if jsonLogErr != nil {
-				log.Println(jsonLogErr)
-				continue
-			}
-
-			// decode json log
-			unmarshalErr := json.Unmarshal([]byte(jsonLog), &containerLog)
-			if unmarshalErr != nil {
-				log.Printf("failed to unmarshall container log: log: %s, err: %v\n", jsonLog, unmarshalErr)
-				continue
-			}
-
-			// insert log to loki
-			lokiPushErr := l.Loki.Push(&containerLog)
-			if lokiPushErr != nil {
-				log.Fatalf("failed to push to loki: %v", lokiPushErr)
-			}
+		// get log line
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			log.Printf("Unable to read log: %v\n", err)
+			time.Sleep(time.Second * 1)
+			break
 		}
 
-		// reconnect docker
-		logs = l.Docker.ReConnect()
+		// extraction json value from log line
+		jsonLog, err := extraction.JSON(line)
+		if err != nil {
+			log.Printf("Unable to extraction json from log line: %v\n", err)
+			continue
+		}
+
+		if err = json.Unmarshal([]byte(jsonLog), &containerLog); err != nil {
+			log.Printf("Unable to decode log: %v\n", err)
+			continue
+		}
+
+		containerLog["container"] = l.ContainerName
+		containerLogByte, err := json.Marshal(containerLog)
+		if err != nil {
+			log.Printf("Unable to encode log: %v\n", err)
+			continue
+		}
+
+		// insert log to loki
+		if err = l.Loki.Push(containerLogByte); err != nil {
+			log.Fatalf("Unable to push to loki: %v\n", err)
+		}
 	}
 }

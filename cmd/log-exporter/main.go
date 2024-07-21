@@ -1,20 +1,19 @@
 package main
 
 import (
-	"github.com/elvin-tajirzada/log-exporter/internal/app"
+	"context"
 	"log"
+
+	"github.com/elvin-tajirzada/log-exporter/internal/app"
 )
 
 func main() {
-	// create app
 	a, err := app.New()
 	if err != nil {
-		log.Fatalf("failed to create a new app: %v", err)
+		log.Fatalf("Unable to create app: %v", err)
 	}
 
-	// start app
-	a.Start()
-
-	// shutdown app
-	a.Shutdown()
+	ctx, cancel := context.WithCancel(context.Background())
+	a.Start(ctx)
+	a.Shutdown(cancel)
 }

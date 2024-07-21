@@ -15,12 +15,10 @@ This project was inspired by [Promtail](https://grafana.com/docs/loki/latest/cli
 
 ## Getting Started
 
-We need some prerequisites to start exporting.
-
-### Prerequisites
-
 #### Log Structure
-First of all your api log must be like this:
+In the current version of the project, following a specific log structure is no longer mandatory. You can configure your logs with any fields you prefer.
+
+However, there is an existing Grafana dashboard configured to work with the following log structure:
 
 ```
 {"ip":"192.168.1.1","caller":"app/main.go:102","path":"/users","level":"info","method":"GET","status":200,"msg":"get users successfully","dt":"mobile","timing":0.776347977,"ts":"2023-07-10T13:01:38Z"}
@@ -44,13 +42,17 @@ First of all your api log must be like this:
 * `ip` - ip address.
 * `caller` - log line in your application.
 * `path` - your api path.
-* `level` - log level. It can be `info`, `error`, `warn`, `fatal`, `debug` and `trace`.
+* `level` - log level.
 * `method` - HTTP method.
-* `status` - HTTP status code and must be `integer`.
+* `status` - HTTP status code.
 * `msg` - your log message.
 * `dt` - device type.
-* `timing` - your handle time (seconds) for each request. It must be `float`.
+* `timing` - your handle time (seconds) for each request.
 * `ts` - log creation time.
+
+The [Grafana](https://grafana.com/) dashboard includes specific visualizations for the `level` field, particularly for `error` and `warn` levels. If you use these log levels, corresponding graphs will be displayed on the dashboard, providing valuable insights into the occurrences and frequency of warnings and errors.
+
+**Note**: The package you are using will take your log and add a `container` field before to push [Loki](https://grafana.com/oss/loki/).
 
 ### Usage Exporter
 
@@ -63,6 +65,7 @@ docker run -d \
   -v /var/run/docker.sock:/var/run/docker.sock \
   --env CONTAINER_NAME=your_container_name \
   --env LOKI_URL=http://loki:3100/loki/api/v1/push \
+  --env DOCKER_RECONNECTION_TIME=20s \
   elvintacirzade/log-exporter:latest
 ```
 

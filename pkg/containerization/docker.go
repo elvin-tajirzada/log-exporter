@@ -3,43 +3,38 @@ package containerization
 import (
 	"context"
 	"fmt"
-	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/client"
-	"github.com/elvin-tajirzada/log-exporter/internal/config"
 	"io"
-	"log"
 	"time"
+
+	"github.com/docker/docker/api/types"
+	dockerClient "github.com/docker/docker/client"
+	"github.com/elvin-tajirzada/log-exporter/internal/config"
 )
 
-type (
-	DockerAPI interface {
-		GetLogs() (io.ReadCloser, error)
-		ReConnect() io.ReadCloser
-	}
-
-	Docker struct {
-		Client        *client.Client
-		ContainerName string
-	}
-)
+type Docker struct {
+	Client        *dockerClient.Client
+	containerName string
+	reconnectTime time.Duration
+}
 
 func NewDocker(conf *config.Docker) (*Docker, error) {
-	cli, cliErr := client.NewClientWithOpts(client.WithHost(conf.SocketPath), client.WithVersion(conf.CliApiVersion))
-	if cliErr != nil {
-		return nil, fmt.Errorf("failed to create a new client: %v", cliErr)
+	client, err := dockerClient.NewClientWithOpts(dockerClient.WithHost(conf.SocketPath), dockerClient.WithVersion(conf.CliApiVersion))
+	if err != nil {
+		return nil, fmt.Errorf("unable to create client: %v", err)
 	}
 
 	return &Docker{
-		Client:        cli,
-		ContainerName: conf.ContainerName,
+		Client:        client,
+		containerName: conf.ContainerName,
+		reconnectTime: conf.ReconnectTime,
 	}, nil
 }
 
-func (d *Docker) GetLogs() (io.ReadCloser, error) {
+func (d *Docker) GetLogs(ctx context.Context) (io.ReadCloser, error) {
 	// get container id
-	containerID, containerIDErr := d.getContainerID()
-	if containerIDErr != nil {
-		return nil, fmt.Errorf("failed to get container id: %v", containerIDErr)
+	containerID, err := d.getContainerID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("unable to get container id: %v", err)
 	}
 
 	options := types.ContainerLogsOptions{
@@ -51,48 +46,34 @@ func (d *Docker) GetLogs() (io.ReadCloser, error) {
 	}
 
 	// get container logs
-	logs, logsErr := d.Client.ContainerLogs(context.Background(), containerID, options)
-	if logsErr != nil {
-		return nil, fmt.Errorf("failed to get container logs: %v", logsErr)
+	logs, err := d.Client.ContainerLogs(ctx, containerID, options)
+	if err != nil {
+		return nil, err
 	}
 
 	return logs, nil
 }
 
-func (d *Docker) ReConnect() io.ReadCloser {
-	for {
-		log.Println("reconnecting to container in 10 seconds...")
-		time.Sleep(time.Second * 10)
-
-		logs, logsErr := d.GetLogs()
-		if logsErr == nil {
-			log.Println("connection successful")
-			return logs
-		}
-
-		log.Println(logsErr)
-	}
-}
-
-func (d *Docker) getContainerID() (string, error) {
+func (d *Docker) getContainerID(ctx context.Context) (string, error) {
 	var containerID string
 
 	// get containers list
-	containers, containersErr := d.Client.ContainerList(context.Background(), types.ContainerListOptions{})
-	if containersErr != nil {
-		return "", fmt.Errorf("failed to get container list: %v", containersErr)
+	containers, err := d.Client.ContainerList(ctx, types.ContainerListOptions{})
+	if err != nil {
+		return "", fmt.Errorf("unable to list container: %v", err)
 	}
 
 	// get container id
 	for _, container := range containers {
-		if container.Names[0] == "/"+d.ContainerName {
+		containerName := fmt.Sprintf("/%s", d.containerName)
+		if container.Names[0] == containerName {
 			containerID = container.ID
 			break
 		}
 	}
 
 	if containerID == "" {
-		return "", fmt.Errorf("container with name '%s' not found", d.ContainerName)
+		return "", fmt.Errorf("container not found: %v", d.containerName)
 	}
 
 	return containerID, nil

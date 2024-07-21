@@ -38,17 +38,28 @@ type (
 )
 
 func New() (*Config, error) {
-	// get container name
 	containerName := os.Getenv("CONTAINER_NAME")
 	if containerName == "" {
 		return nil, fmt.Errorf("environment parameter `CONTAINER_NAME` can't be empty")
 	}
 
-	// get loki URL
 	lokiURL := os.Getenv("LOKI_URL")
-	u, uErr := url.ParseRequestURI(lokiURL)
-	if uErr != nil {
-		return nil, fmt.Errorf("failed to parse LOKI_URL: %s", uErr)
+	if lokiURL == "" {
+		return nil, fmt.Errorf("environment parameter `LOKI_URL` can't be empty")
+	}
+
+	u, err := url.ParseRequestURI(lokiURL)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse LOKI_URL: %s", err)
+	}
+
+	reconnTime := dockerReconnectTime
+	reconnectionTime := os.Getenv("DOCKER_RECONNECTION_TIME")
+	if reconnectionTime != "" {
+		reconnTime, err = time.ParseDuration(reconnectionTime)
+		if err != nil {
+			return nil, fmt.Errorf("unable to parse DOCKER_RECONNECTION_TIME: %s", err)
+		}
 	}
 
 	return &Config{
@@ -56,7 +67,7 @@ func New() (*Config, error) {
 			SocketPath:    dockerSocketPath,
 			CliApiVersion: dockerCliApiVersion,
 			ContainerName: containerName,
-			ReconnectTime: dockerReconnectTime,
+			ReconnectTime: reconnTime,
 		},
 		Loki: &Loki{
 			URL: u.String(),
