@@ -11,7 +11,7 @@ Log Exporter makes it possible to monitor the custom API logs using [Loki](https
 
 This project was inspired by [Promtail](https://grafana.com/docs/loki/latest/clients/promtail/). Your API have to run on [Docker](https://www.docker.com/). The exporter connects to your container, reads the container logs, pushes the logs to the [Loki](https://grafana.com/oss/loki/).
 
-![Project schema](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/schema.png?raw=true)
+![Project schema](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/photos/schema.png?raw=true)
 
 ## Getting Started
 
@@ -80,8 +80,8 @@ You must run [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana
 
 After running [Loki](https://grafana.com/oss/loki/) and [Grafana](https://grafana.com/) you must add [Loki](https://grafana.com/oss/loki/) data source in [Grafana](https://grafana.com/). Now you can import [dashboard](https://grafana.com/grafana/dashboards/19745-custom-logs/) for exporter.
 
-![Grafana Dashboard Timing](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/dashboard-timing.png?raw=true)
+![Grafana Dashboard Timing](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/photos/dashboard-timing.png?raw=true)
 
-![Grafana Dashboard Number of Processed Requests](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/dashboard-number-of-processed-requests.png?raw=true)
+![Grafana Dashboard Number of Processed Requests](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/photos/dashboard-number-of-processed-requests.png?raw=true)
 
-![Grafana Dashboard Info](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/dashboard-info.png?raw=true)
+![Grafana Dashboard Info](https://github.com/elvin-tacirzade/log-exporter/blob/main/grafana/assets/photos/dashboard-info.png?raw=true)
